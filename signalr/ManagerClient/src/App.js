@@ -1,10 +1,7 @@
 import "./App.css";
 import React, { useState } from "react";
 import "@fontsource/roboto/500.css";
-import {
-  Divider,
-  Stack
-} from "@mui/material";
+import { Divider, Stack } from "@mui/material";
 import Connection from "./components/Connection/Connection";
 import ChatRoom from "./components/ChatRoom/ChatRoom";
 import DataContext from "./DataContext";

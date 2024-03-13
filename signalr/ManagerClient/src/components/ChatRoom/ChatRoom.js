@@ -38,14 +38,14 @@ function ChatRoom() {
   const connectionRef = useRef(null);
 
   useEffect(() => {
+    /* Create HubConnectionBuilder */
     const connection = new HubConnectionBuilder()
       .withUrl("https://localhost:7251/chathub")
       .build();
 
     connectionRef.current = connection;
 
-    // connection.start().catch((err) => console.error(err.toString()));
-
+    /* Set Time Out for connection.start for reconnecting */
     const startConnection = async () => {
       try {
         await connection.start();
@@ -58,6 +58,7 @@ function ChatRoom() {
 
     startConnection();
 
+    /* Define method ReceiveMessage and add the message that server handle to totalMessage */
     connection.on(
       "ReceiveMessage",
       (userName, message, receivedRoom, status) => {
@@ -76,12 +77,9 @@ function ChatRoom() {
     return () => {
       connection.stop().catch((err) => console.error(err));
     };
-
-    // connection.on("ConnectedUser", (users) => {
-    //   setConnectedUsers(users);
-    // });
   }, []);
 
+  /* Filter the messages of each room */
   useEffect(() => {
     const currentFilteredMessages = totalMessages.filter(
       (message) => message.room === room && message.status === true
@@ -90,30 +88,39 @@ function ChatRoom() {
     setMessages(currentFilteredMessages);
   }, [room, totalMessages]);
 
+  /* UseEffect for invoke JoinRoom method*/
   useEffect(() => {
     if (room) {
       let hasReceiveMessage = true;
 
-      // Check time to Click in Room Item
+      /* Check time to Click to each room item */
+      /* The condition for avoiding spam sending JoinRoom notification for each Room Item clicking time*/
       if (timeToClick.filter((item) => item.room === room).length > 0) {
         hasReceiveMessage = false;
       }
 
-      // Check if both user and room are available before joining
+      /* Create userConnection data for invoke JoinRoom method */
       const userConnection = {
         User: user,
         Room: room,
       };
 
+      /* Invoke JoinRoom method */
       connectionRef.current
         .invoke("JoinRoom", userConnection, hasReceiveMessage)
         .catch((err) => console.error(err.toString()));
     }
   }, [room]);
 
-  const handleListItemClick = (event, index) => {
+  /* Handle room item click event */
+  const handleRoomItemClick = (event, index) => {
+    /* Set selected index data for point to the current room item */
     setSelectedIndex(index);
+
+    /* Set room data for filtering and showing the messages of each room */
     setRoom(listItems[index].label);
+
+    /* Check time to Click to each room item  */
     setTimeToClick((prevClick) => [
       ...prevClick,
       {
@@ -121,32 +128,37 @@ function ChatRoom() {
         timeToClick: 1,
       },
     ]);
+
     setMessagesLoad(true);
   };
 
+  /* Handle click button add room event */
   const handleClickAddBtn = () => {
     const roomName = document.getElementById("inputRoom").value;
 
     const hasLabel = listItems.some((item) => item.label === roomName);
 
+    /* If we add the roomName before, not need to add again */
     if (!hasLabel) {
       const newListItem = { label: roomName };
       setListItems([...listItems, newListItem]);
     } else {
       console.log("Duplicate Item");
     }
+
+    /* Clear inputRoom textfield after each time to add*/
+    document.getElementById("inputRoom").value = "";
   };
 
-  const handleClickDeleteBtn = (index) => {
-    const updatedList = listItems.filter((_, idx) => idx !== index);
-
-    setListItems(updatedList);
-  };
-
+  /* Handle click button send message event */
   const handleClickSendBtn = (event) => {
+    /* Invoke SendMessage method */
     connectionRef.current
       .invoke("SendMessage", messageInput, room, true)
       .catch((err) => console.error(err.toString()));
+
+    /* Clear message textfield after each time to send */
+    setMessageInput("");
   };
 
   return (
@@ -194,7 +206,7 @@ function ChatRoom() {
               <ListItemButton
                 key={index}
                 selected={selectedIndex === index}
-                onClick={(event) => handleListItemClick(event, index)}
+                onClick={(event) => handleRoomItemClick(event, index)}
               >
                 <ListItemIcon>
                   <InsertCommentIcon />

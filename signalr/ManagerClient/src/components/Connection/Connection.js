@@ -4,23 +4,16 @@ import DataContext from "../../DataContext";
 
 function Connection({ chatroomLoaded, setChatRoomLoaded }) {
   const { user, setUser } = useContext(DataContext);
-   const [connectionStatus, setConnectionStatus] = useState(false);
-
+  const [connectionStatus, setConnectionStatus] = useState(false);
 
   const handleUserNameChange = (event) => {
     setUser(event.target.value);
-  }
+  };
 
   const handleConnectBtnEvent = () => {
     setChatRoomLoaded(true);
     setConnectionStatus(true);
   };
-
-  const handleDisconnectBtnEvent = () => {
-    setUser("");
-    setChatRoomLoaded(false);
-    setConnectionStatus(false);
-  }
   return (
     <Stack>
       <Typography variant="h4" gutterBottom mt={5} mb={7} font>
@@ -41,26 +34,15 @@ function Connection({ chatroomLoaded, setChatRoomLoaded }) {
               onChange={handleUserNameChange}
             />
           </Grid>
-          {connectionStatus === false ? (
-            <Button
-              variant="contained"
-              color="success"
-              sx={{ marginLeft: "200px" }}
-              disabled={!user}
-              onClick={handleConnectBtnEvent}
-            >
-              Connect
-            </Button>
-          ) : (
-            <Button
-              variant="contained"
-              color="success"
-              sx={{ marginLeft: "200px" }}
-              onClick={handleDisconnectBtnEvent}
-            >
-              Disconnect
-            </Button>
-          )}
+          <Button
+            variant="contained"
+            color="success"
+            sx={{ marginLeft: "200px" }}
+            disabled={!user}
+            onClick={handleConnectBtnEvent}
+          >
+            Connect
+          </Button>
         </Stack>
       </Grid>
     </Stack>
